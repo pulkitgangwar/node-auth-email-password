@@ -1,5 +1,6 @@
 import express from "express";
 import dotenv from "dotenv";
+import { sequelize } from "./database/config.js";
 import AuthRoutes from "./routes/auth.js";
 import DashboardRoutes from "./routes/dashboard.js";
 
@@ -19,6 +20,8 @@ app.set("view engine", "hbs");
 app.use("/auth", AuthRoutes);
 app.use("/dashboard", DashboardRoutes);
 
-app.listen(process.env.PORT || 3000, () => {
+app.listen(process.env.PORT || 3000, async () => {
   console.log(`server started on port ${process.env.PORT || 3000}`);
+
+  await sequelize.sync();
 });
