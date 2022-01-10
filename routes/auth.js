@@ -7,7 +7,6 @@ const router = Router();
 router.get("/login", async (req, res) => {
   const user = await User.findOne({ where: { email: "pulkit@gmail.com" } });
 
-  console.log(user.getDataValue("password"));
   res.render("login", {
     email: "",
     errors: [],
@@ -84,7 +83,7 @@ router.post("/login", async (req, res) => {
   }
 
   req.session.email = registeredUser.getDataValue("email");
-  req.session.isAdmin = false;
+  req.session.isAdmin = registeredUser.getDataValue("isAdmin");
 
   res.redirect("/dashboard");
 });

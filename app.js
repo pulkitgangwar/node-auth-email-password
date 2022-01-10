@@ -6,9 +6,11 @@ import morgan from "morgan";
 import { sequelize } from "./database/config.js";
 import AuthRoutes from "./routes/auth.js";
 import DashboardRoutes from "./routes/dashboard.js";
+import AdminRoutes from "./routes/admin.js";
 import { isUserAuthenticated } from "./middleware/isUserAuthenticated.js";
 // stratgy local
 import "./stratgy/local.js";
+import { isAdmin } from "./middleware/isAdmin.js";
 
 // creating app
 const app = express();
@@ -27,14 +29,11 @@ dotenv.config();
 app.set("view engine", "hbs");
 
 // session
-app.use(
+app.use(  
   session({
     secret: process.env.SESSION_SECRET,
     resave: false,
-    saveUninitialized: false,
-    cookie: {
-      maxAge: 60000,
-    },
+    saveUninitialized: false,  
   })
 );
 
@@ -45,6 +44,7 @@ app.use(passport.session());
 // routes
 app.use("/auth", AuthRoutes);
 app.use("/dashboard", isUserAuthenticated, DashboardRoutes);
+app.use("/admin", isAdmin, AdminRoutes);
 
 app.listen(process.env.PORT || 3000, async () => {
   console.log(`server started on port ${process.env.PORT || 3000}`);
