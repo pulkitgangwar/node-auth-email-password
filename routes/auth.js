@@ -1,5 +1,6 @@
 import { Router } from "express";
 import passport from "passport";
+import { registerUser, validateUser } from "../helpers/helper.js";
 import { User } from "../models/User.js";
 const router = Router();
 
@@ -21,11 +22,8 @@ router.get("/register", (req, res) => {
 
 router.post("/register", async (req, res) => {
   const { name, email, password } = req.body;
-  let errors = [];
 
-  if (password.length < 6) {
-    errors.push("password should be greater than 6 characters");
-  }
+  const errors = validateUser({ email, password, name });
 
   if (errors.length) {
     res.render("register", {
@@ -35,30 +33,18 @@ router.post("/register", async (req, res) => {
       errors,
     });
   } else {
-    const userAlreadyExists = await User.findOne({ where: { email } }).catch(
-      (err) => {
-        errors.push(err.message);
-        res.render("register", {
-          name,
-          email,
-          password,
-          errors: [],
-        });
-      }
-    );
-    if (userAlreadyExists) {
-      errors.push("User already exists");
-      res.render("register", {
+    const user = await registerUser({ email, password, name }).catch((err) => {
+      return res.render("register", {
         name,
-        password,
         email,
-        errors,
+        password,
+        errors: [err.message],
       });
+    });
+
+    if (!user) {
       return;
     }
-
-    const user = User.build({ name, email, password });
-    await user.save();
     res.redirect("login");
   }
 });
