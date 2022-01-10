@@ -6,6 +6,7 @@ import morgan from "morgan";
 import { sequelize } from "./database/config.js";
 import AuthRoutes from "./routes/auth.js";
 import DashboardRoutes from "./routes/dashboard.js";
+import { isUserAuthenticated } from "./middleware/isUserAuthenticated.js";
 // stratgy local
 import "./stratgy/local.js";
 
@@ -43,7 +44,7 @@ app.use(passport.session());
 
 // routes
 app.use("/auth", AuthRoutes);
-app.use("/dashboard", DashboardRoutes);
+app.use("/dashboard", isUserAuthenticated, DashboardRoutes);
 
 app.listen(process.env.PORT || 3000, async () => {
   console.log(`server started on port ${process.env.PORT || 3000}`);

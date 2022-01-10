@@ -22,6 +22,7 @@
                   placeholder="Email"
                   name="email"
                   required
+                  value="{{email}}"
                 />
               </div>
             </div>
@@ -40,6 +41,14 @@
             <button
               class="button is-block is-primary is-fullwidth is-medium"
             >Login</button>
+            {{#each errors}}
+              <article class="message is-danger" style="margin-top:20px;">
+                <div class="message-header">
+                  <p>{{this}}</p>
+                  {{! <button class="delete" aria-label="delete"></button> }}
+                </div>
+              </article>
+            {{/each}}
             <br />
             <small><a href="/auth/register">Register</a></small>
           </form>

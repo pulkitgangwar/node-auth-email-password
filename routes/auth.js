@@ -8,7 +8,10 @@ router.get("/login", async (req, res) => {
   const user = await User.findOne({ where: { email: "pulkit@gmail.com" } });
 
   console.log(user.getDataValue("password"));
-  res.render("login");
+  res.render("login", {
+    email: "",
+    errors: [],
+  });
 });
 
 router.get("/register", (req, res) => {
@@ -49,12 +52,46 @@ router.post("/register", async (req, res) => {
   }
 });
 
-router.post(
-  "/login",
-  passport.authenticate("local", {
-    successRedirect: "/dashboard",
-    failureRedirect: "/auth/register",
-  })
-);
+router.post("/login", async (req, res) => {
+  /*
+    user exists in database or not 
+    user password matches or not
+    add userid to session
+  */
+  const { email, password } = req.body;
+  const errors = validateUser({ email, password, name: null });
+  if (errors.length) {
+    return res.render("login", {
+      email,
+      errors,
+    });
+  }
+
+  const registeredUser = await User.findOne({ where: { email } });
+
+  if (!registeredUser) {
+    return res.render("login", {
+      email,
+      errors: ["User not registered please register"],
+    });
+  }
+
+  if (registeredUser.getDataValue("password") !== password) {
+    return res.render("login", {
+      email,
+      errors: ["incorrect user credentials"],
+    });
+  }
+
+  req.session.email = registeredUser.getDataValue("email");
+  req.session.isAdmin = false;
+
+  res.redirect("/dashboard");
+});
+
+router.get("/logout", (req, res) => {
+  req.session.destroy();
+  res.redirect("/auth/login");
+});
 
 export default router;
