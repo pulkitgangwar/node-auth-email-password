@@ -8,7 +8,7 @@ router.get("/", (req, res) => {
 
 router.get("/users", async (req, res) => {
   const users = await User.findAll();
-
+   
   const newUsers = users.map((user) => ({
     email: user.getDataValue("email"),
     name: user.getDataValue("name"),

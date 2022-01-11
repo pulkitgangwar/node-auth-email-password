@@ -2,6 +2,7 @@ import express from "express";
 import dotenv from "dotenv";
 import session from "express-session";
 import passport from "passport";
+import cookieparser from "cookie-parser";
 import morgan from "morgan";
 import { sequelize } from "./database/config.js";
 import AuthRoutes from "./routes/auth.js";
@@ -25,15 +26,17 @@ app.use(express.urlencoded({ extended: false }));
 // loading all env variables
 dotenv.config();
 
+app.use(cookieparser("secret"));
+
 // view engine handlebars
 app.set("view engine", "hbs");
 
 // session
-app.use(  
+app.use(
   session({
     secret: process.env.SESSION_SECRET,
     resave: false,
-    saveUninitialized: false,  
+    saveUninitialized: false,
   })
 );
 
@@ -44,7 +47,7 @@ app.use(passport.session());
 // routes
 app.use("/auth", AuthRoutes);
 app.use("/dashboard", isUserAuthenticated, DashboardRoutes);
-app.use("/admin", isAdmin, AdminRoutes);
+app.use("/admin", isUserAuthenticated, isAdmin, AdminRoutes);
 
 app.listen(process.env.PORT || 3000, async () => {
   console.log(`server started on port ${process.env.PORT || 3000}`);

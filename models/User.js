@@ -4,7 +4,7 @@ import { sequelize } from "../database/config.js";
 export class User extends Model {}
 
 User.init(
-  {
+  {  
     name: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -12,7 +12,6 @@ User.init(
     email: {
       type: DataTypes.STRING,
       allowNull: false,
-      primaryKey: true,
       unique: true,
     },
     password: {

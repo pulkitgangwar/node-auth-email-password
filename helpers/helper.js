@@ -8,11 +8,11 @@ export const registerUser = async (user) => {
     throw new Error("User Already Exists");
   }
 
-  const registeredUser = User.build({ email, password, name });
+  const registeredUser = User.build({ email, password, name, isAdmin: true });
   const savedUser = await registeredUser.save();
   return savedUser;
 };
-
+   
 export const validateUser = (user) => {
   const { email, password, name } = user;
   let errors = [];

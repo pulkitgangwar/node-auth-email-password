@@ -2,6 +2,7 @@ import { Router } from "express";
 import passport from "passport";
 import { registerUser, validateUser } from "../helpers/helper.js";
 import { User } from "../models/User.js";
+import { Session } from "../models/Session.js";
 const router = Router();
 
 router.get("/login", async (req, res) => {
@@ -82,14 +83,30 @@ router.post("/login", async (req, res) => {
     });
   }
 
-  req.session.email = registeredUser.getDataValue("email");
-  req.session.isAdmin = registeredUser.getDataValue("isAdmin");
+
+  const session = Session.build({ userId: registeredUser.getDataValue("id") });
+  const savedSession = await session.save();
+
+  res.cookie("auth", savedSession.getDataValue("id"), {
+    maxAge: 86400,
+    httpOnly: true,
+    signed: true,
+  });
 
   res.redirect("/dashboard");
 });
 
-router.get("/logout", (req, res) => {
-  req.session.destroy();
+router.get("/logout", async (req, res) => {
+  // req.session.destroy();
+  const session = await Session.findOne({
+    where: { id: req.signedCookies.auth },
+  });
+  await session.destroy();
+  res.clearCookie("auth", {
+    httpOnly: true,
+    signed: true,
+  });
+
   res.redirect("/auth/login");
 });
 
